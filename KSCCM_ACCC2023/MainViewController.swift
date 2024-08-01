@@ -3,13 +3,17 @@ import UIKit
 class MainViewController: UIViewController {
 
     let bottomView = BottomView()
-//    var noticeView : LatestNoticeView!
+    var noticeView : LatestNoticeView!
     
     var mainButtonBackView : UIView!
     var mainButtonBackView2 : UIView!
     var mainButtonBackView3 : UIView!
     
+    
     var boothBannerView : Main_BoothBannerView!
+    
+    var topTitle : UIImageView!
+    
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         if let isOpen = appDel.leftView?.isOpen, isOpen {
@@ -45,10 +49,16 @@ class MainViewController: UIViewController {
 
         self.view.backgroundColor = #colorLiteral(red: 0.9215686275, green: 0.9254901961, blue: 0.9254901961, alpha: 1)
         
-//        let mainBGImage = UIImage(named: "mainBG")
-//        let mainBGImageView = UIImageView(frame: self.view.bounds)
+        let mainBGImage = UIImage(named: "mainBG")
+        let mainBGImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: SCREEN.WIDTH, height: SCREEN.HEIGHT))
 //        mainBGImageView.setImageWithFrameHeight(image: mainBGImage)
-//        self.view.addSubview(mainBGImageView)
+//        mainBGImageView.setImageWithFrame(image: mainBGImage)
+        mainBGImageView.image = mainBGImage
+//        mainBGImageView.frame.size.width = SCREEN.WIDTH
+//        mainBGImageView.frame.size.height = SCREEN.HEIGHT
+        mainBGImageView.contentMode = .scaleToFill
+        
+        self.view.addSubview(mainBGImageView)
         
         let statusBar = UIView(frame: CGRect(x: 0, y: 0, width: SCREEN.WIDTH, height: STATUS_BAR_HEIGHT))
         self.view.addSubview(statusBar)
@@ -78,11 +88,20 @@ class MainViewController: UIViewController {
             gradientLayer.startPoint = CGPoint.zero
             gradientLayer.endPoint = CGPoint(x: 0, y: 1)
         }
-        self.view.addSubview(boothEventButton)
+//        self.view.addSubview(boothEventButton)
         boothEventButton.animatioinStart()
         boothEventButton.addTarget(event: .touchUpInside) { button in
             goBoothEvent()
         }
+        
+        var noticeViewHeight : CGFloat = 50
+        if IS_IPHONE_N_PLUS { noticeViewHeight = 45 }
+        if IS_IPHONE_N { noticeViewHeight = 40 }
+        if IS_IPHONE_SE { noticeViewHeight = 35 }
+        
+     
+        
+        
                 
         self.view.addSubview(bottomView)
         
@@ -104,6 +123,12 @@ class MainViewController: UIViewController {
         mainButtonBackView = UIView(frame: CGRect(x: 0, y: bottomView.frame.minY - mainButtonBackViewHeight, width: SCREEN.WIDTH, height: mainButtonBackViewHeight))
         self.view.addSubview(mainButtonBackView)
         
+        noticeView = LatestNoticeView(frame: CGRect(x: 0, y: mainButtonBackView.frame.maxY - 50, width: SCREEN.WIDTH, height: noticeViewHeight))
+//        noticeView.layer.zPosition = 999
+        self.view.addSubview(noticeView)
+
+        
+        
         mainButtonBackView2 = UIView(frame: mainButtonBackView.bounds)
         mainButtonBackView2.frame.size.height *= 0.9
         mainButtonBackView2.frame.size.width = mainButtonBackView2.frame.size.height
@@ -116,7 +141,7 @@ class MainViewController: UIViewController {
         let buttonWidthGap : CGFloat = 10
         let buttonHeightGap : CGFloat = 10
         let buttonWidth : CGFloat = (mainButtonBackView3.frame.size.width - (buttonWidthGap * 2)) / 3
-        let buttonHeight : CGFloat = (mainButtonBackView3.frame.size.height - (buttonHeightGap * 2)) / 3
+        let buttonHeight : CGFloat = (mainButtonBackView3.frame.size.height - (buttonHeightGap * 2)) / 3.3
         for i in 0..<9{
             let buttonX : CGFloat = (buttonWidth + buttonWidthGap) * CGFloat(i % 3)
             let buttonY : CGFloat = (buttonHeight + buttonHeightGap) * CGFloat(i / 3)
@@ -132,8 +157,25 @@ class MainViewController: UIViewController {
                 let infoDic = INFO.MAIN_INFO[i]
                 contentShow(dataDic: infoDic as [String:Any])
             }
+            
+            
+            
+            
+            
             mainButtonBackView3.addSubview(button)
+            
+            
+            
+      
+            
+            
         }
+        
+        
+    
+        
+        
+        
         
         
         let mainTitle1Image = UIImage(named: "mainTitle1")
@@ -189,6 +231,21 @@ class MainViewController: UIViewController {
         
 //        self.view.uiCheck()
 //        mainButtonBackView2.backgroundColor = UIColor.red
+        
+        
+        
+        topTitle = UIImageView(frame: CGRect(x: 0, y: naviBar.frame.maxY + 2, width: SCREEN.WIDTH * 0.8, height: SCREEN.HEIGHT / 5.7))
+        if IS_IPHONE_12PRO_MAX {
+            topTitle = UIImageView(frame: CGRect(x: 0, y: naviBar.frame.maxY, width: SCREEN.WIDTH * 0.8, height: 70))
+        }
+        
+        topTitle.center.x = SCREEN.WIDTH / 2
+        
+        topTitle.image = UIImage(named: "mainTopTitle")
+        
+        self.view.addSubview(topTitle)
+        
+        
     }
 
     
@@ -262,7 +319,7 @@ class MainButton: UIButton {
         self.layer.addSublayer(lineLayer)
 
         let smallRadius : CGFloat = self.width * 0.1
-        let largeRadius : CGFloat = self.width * 0.3
+        let largeRadius : CGFloat = self.width * 0.2
 
         let leftTopCenterPoint = CGPoint(x: smallRadius, y: smallRadius)
         let leftTopPoint1 = CGPoint(x: 0, y: smallRadius)
@@ -312,16 +369,21 @@ class MainButton: UIButton {
         innerView.isUserInteractionEnabled = false
         self.addSubview(innerView)
 
-        let iconImageViewRatio : CGFloat = 0.4
+        let iconImageViewRatio : CGFloat = 0.35
         iconImageView  = UIImageView(frame: innerView.bounds)
         iconImageView.frame.size.width *= iconImageViewRatio
         iconImageView.frame.size.height *= iconImageViewRatio
+        iconImageView.frame.origin.y = innerView.frame.minY + 15
+        
         innerView.addSubview(iconImageView)
 
         if let iconImage = UIImage(named: imageName) {
             iconImageView.setImageWithFrameWidth(image: iconImage)
             
         }
+        
+        
+        
         iconImageView.center.x = innerView.frame.center.x
         
         nameLabel = UILabel(frame: CGRect(x: 0, y: iconImageView.frame.maxY, width: self.frame.size.width * 2, height: 50))
@@ -352,6 +414,14 @@ class MainButton: UIButton {
         innerView.frame.size.height = nameLabel.frame.maxY
         innerView.center.y = self.frame.size.height * 0.5
         
+        
+        if nameLabel.text == "" {
+            iconImageView.frame.origin.x = iconImageView.frame.minX + 5
+            iconImageView.frame.origin.y = iconImageView.frame.minY + 15
+            iconImageView.frame.size.width *= 0.9
+//            iconImageView.frame.size.height *= 1.35
+            
+        }
         
         
         
